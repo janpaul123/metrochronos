@@ -1,6 +1,6 @@
 module.exports = {
   parser: 'babel-eslint',
-  extends: ['eslint:recommended', 'prettier'],
+  extends: ['eslint:recommended', 'prettier', 'problems'],
   plugins: ['prettier', 'react'],
   rules: {
     'prettier/prettier': ['error', { singleQuote: true, trailingComma: 'es5', printWidth: 100 }],

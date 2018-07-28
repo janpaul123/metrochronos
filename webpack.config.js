@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+  mode: "development",
   entry: {
     main: ['./client/entry.js'],
   },
@@ -31,11 +32,6 @@ module.exports = {
             },
           },
         ],
-      },
-      // Per https://github.com/devongovett/pdfkit/issues/659#issuecomment-321452649
-      {
-        test: /node_modules\/(pdfkit|fontkit|png-js|linebreak|unicode-properties|brotli)\//,
-        loader: 'transform-loader?brfs',
       },
       {
         test: /node_modules\/unicode-properties.*\.json$/,
