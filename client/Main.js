@@ -25,7 +25,30 @@ const initialState = {
   hoveringSwitchHeadwayMarker: undefined,
 };
 
-class AnimatedBuses extends React.Component {
+class BusRouteLines extends React.PureComponent {
+  render() {
+    const { splittedLines, headway } = this.props;
+    return (
+      <React.Fragment>
+        {splittedLines.map((coordinates, index) => (
+          <Layer
+            key={index}
+            type="line"
+            paint={{
+              'line-color':
+                index % 2 === 0 ? colorsByHeadway[headway] : secondaryColorsByHeadway[headway],
+              'line-width': 8,
+            }}
+          >
+            <Feature coordinates={coordinates} />
+          </Layer>
+        ))}
+      </React.Fragment>
+    );
+  }
+}
+
+class AnimatedBuses extends React.PureComponent {
   componentDidMount() {
     this._tick();
   }
@@ -44,7 +67,7 @@ class AnimatedBuses extends React.Component {
   render() {
     return (
       <React.Fragment>
-        {this.props.splittedLinesByRouteId[this.props.routeId].map((coordinates, index) => {
+        {this.props.splittedLines.map((coordinates, index) => {
           const { point, direction } = getBusPoint(
             coordinates,
             this.props.headway,
@@ -79,7 +102,7 @@ export default class Main extends React.Component {
     let usedBuses = 0;
     Object.keys(routes).forEach(routeId => {
       const route = routes[routeId];
-      splittedLinesByRouteId[routeId] = getSplittedLines(route.coordinates, route.headway);
+      splittedLinesByRouteId[routeId] = getSplittedLines(routeId, route.coordinates, route.headway);
       usedBuses += splittedLinesByRouteId[routeId].length;
     });
 
@@ -107,24 +130,12 @@ export default class Main extends React.Component {
               const route = routes[routeId];
               return (
                 <React.Fragment key={routeId}>
-                  {splittedLinesByRouteId[routeId].map((coordinates, index) => (
-                    <Layer
-                      key={index}
-                      type="line"
-                      paint={{
-                        'line-color':
-                          index % 2 === 0
-                            ? colorsByHeadway[route.headway]
-                            : secondaryColorsByHeadway[route.headway],
-                        'line-width': 8,
-                      }}
-                    >
-                      <Feature coordinates={coordinates} />
-                    </Layer>
-                  ))}
+                  <BusRouteLines
+                    splittedLines={splittedLinesByRouteId[routeId]}
+                    headway={route.headway}
+                  />
                   <AnimatedBuses
-                    splittedLinesByRouteId={splittedLinesByRouteId}
-                    routeId={routeId}
+                    splittedLines={splittedLinesByRouteId[routeId]}
                     headway={route.headway}
                   />
                   {times(route.coordinates.length - 1, segmentIndex => (
@@ -189,6 +200,7 @@ export default class Main extends React.Component {
                           onChange(dataCopy);
                         }}
                         onClick={() => {
+                          if (this.state.draggingCircle) return;
                           const dataCopy = cloneDeep(data);
                           if (dataCopy.routes[routeId].coordinates.length > 2) {
                             dataCopy.routes[routeId].coordinates.splice(index, 1);
