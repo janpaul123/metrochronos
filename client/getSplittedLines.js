@@ -3,7 +3,8 @@ import lineString from 'turf-linestring';
 import lineSliceAlong from '@turf/line-slice-along';
 import times from 'lodash/times';
 
-const averageBusSpeedKmh = 10;
+import {averageBusSpeedKph} from './constants';
+
 const minimumSplitLineLengthKm = 0.35;
 
 const cache = {};
@@ -14,7 +15,7 @@ export default function getSplittedLines(routeId, coordinates, headwayMins) {
     cache[routeId].headwayMins !== headwayMins
   ) {
     const headwayHours = headwayMins / 60;
-    const splitLineLengthKm = averageBusSpeedKmh * headwayHours / 2; // divide by 2 because of roundtrip.
+    const splitLineLengthKm = averageBusSpeedKph * headwayHours / 2; // divide by 2 because of roundtrip.
     const linestring = lineString(coordinates);
     const lengthKm = length(linestring);
     const numberOfSplitLines = Math.ceil(lengthKm / splitLineLengthKm);
