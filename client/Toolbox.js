@@ -99,6 +99,8 @@ export default class Toolbox extends React.Component {
   render() {
     return (
       <div className={styles.root}>
+        <div className={styles.routeHeader}>bus routes</div>
+        <div className={styles.routeSubHeader}>(try dragging them!)</div>
         <div className={styles.routeContainer}>
           {this._renderRoute(60)}
           {this._renderRoute(30)}

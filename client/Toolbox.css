@@ -7,10 +7,22 @@
   width: 150px;
 }
 
+:local(.routeHeader) {
+  font: 14px sans-serif;
+  text-align: center;
+  margin-top: 5px;
+}
+
+:local(.routeSubHeader) {
+  font: 11px sans-serif;
+  color: #ccc;
+  text-align: center;
+}
+
 :local(.routeContainer) {
   display: flex;
   justify-content: space-around;
-  margin: 25px 5px 10px;
+  margin: 20px 5px 10px;
 }
 
 :local(.route) {
