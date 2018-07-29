@@ -1,0 +1,17 @@
+:local(.root) {
+  background: white;
+  border-radius: 4px;
+  white-space: nowrap;
+  padding: 4px;
+  line-height: 0;
+  margin-top: 8px;
+}
+
+:local(.item) {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  display: inline-block;
+  margin: 0px 2px;
+  cursor: pointer;
+}

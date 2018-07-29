@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactMapboxGl, { Feature, GeoJSONLayer, Layer, Popup } from 'react-mapbox-gl';
+import ReactMapboxGl, { Feature, GeoJSONLayer, Layer, Marker, Popup } from 'react-mapbox-gl';
 import cloneDeep from 'lodash/cloneDeep';
 import times from 'lodash/times';
 import uuid from 'uuid';
@@ -9,6 +9,7 @@ import Toolbox from './Toolbox';
 import getBusPoint from './getBusPoint';
 import getSplittedLines from './getSplittedLines';
 import styles from './Main.css';
+import SwitchHeadwayMarker from './SwitchHeadwayMarker';
 
 const Map = ReactMapboxGl({
   accessToken:
@@ -21,6 +22,7 @@ const initialState = {
   showAddCoordinate: undefined,
   hoveringCircle: undefined,
   draggingCircle: undefined,
+  hoveringSwitchHeadwayMarker: undefined,
 };
 
 export default class Main extends React.Component {
@@ -235,6 +237,30 @@ export default class Main extends React.Component {
                           onMouseLeave={() => this.setState({ showAddCoordinate: undefined })}
                         />
                       </Layer>
+                    )}
+                  {!this.state.draggingCircle &&
+                    ((this.state.hoveringSwitchHeadwayMarker &&
+                      this.state.hoveringSwitchHeadwayMarker.routeId === routeId) ||
+                      (this.state.hoveringCircle &&
+                        this.state.hoveringCircle.routeId === routeId) ||
+                      (this.state.showAddCoordinate &&
+                        this.state.showAddCoordinate.routeId === routeId)) && (
+                      <Marker
+                        coordinates={route.coordinates[route.coordinates.length - 1]}
+                        anchor="top"
+                      >
+                        <SwitchHeadwayMarker
+                          routeId={routeId}
+                          data={data}
+                          onChange={onChange}
+                          onMouseEnter={() =>
+                            this.setState({ hoveringSwitchHeadwayMarker: { routeId } })
+                          }
+                          onMouseLeave={() =>
+                            this.setState({ hoveringSwitchHeadwayMarker: undefined })
+                          }
+                        />
+                      </Marker>
                     )}
                 </React.Fragment>
               );
