@@ -33,13 +33,32 @@
   text-align: center;
 }
 
+:local(.routePoint), :local(.routePointDragging) {
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  user-select: none;
+}
+
 :local(.routePoint) {
   position: absolute;
   top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  background: currentColor;
-  width: 20px;
-  height: 20px;
-  border-radius: 100%;
+  cursor: pointer;
+}
+
+:local(.routePointDragging) {
+  position: fixed;
+}
+
+:local(.draggingLayer) {
+  position: fixed;
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+  cursor: grabbing;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }

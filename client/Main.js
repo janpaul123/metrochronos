@@ -2,6 +2,7 @@ import React from 'react';
 import ReactMapboxGl, { Feature, GeoJSONLayer, Layer, Popup } from 'react-mapbox-gl';
 import cloneDeep from 'lodash/cloneDeep';
 import times from 'lodash/times';
+import uuid from 'uuid';
 
 import { colorsByHeadway, hoverColorsByHeadway } from './constants';
 import Toolbox from './Toolbox';
@@ -48,6 +49,7 @@ export default class Main extends React.Component {
             }}
             center={initialCenter}
             zoom={initialZoom}
+            ref={c => (this._map = c)}
           >
             {Object.keys(routes).map(routeId => {
               const route = routes[routeId];
@@ -188,7 +190,18 @@ export default class Main extends React.Component {
             })}
           </Map>
         </div>
-        <Toolbox />
+        <Toolbox
+          onDrop={(position, headway) => {
+            const lngLat = this._map.state.map.unproject(position);
+            const routeId = uuid.v4();
+            const dataCopy = cloneDeep(data);
+            dataCopy.routes[routeId] = {
+              headway,
+              coordinates: [[lngLat.lng, lngLat.lat], [lngLat.lng, lngLat.lat - 0.01]],
+            };
+            onChange(dataCopy);
+          }}
+        />
       </React.Fragment>
     );
   }

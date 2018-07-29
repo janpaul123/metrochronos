@@ -44,6 +44,7 @@
     "nocache": "*",
     "pg": "*",
     "react": "*",
+    "react-document-events": "^1.4.0",
     "react-dom": "*",
     "react-mapbox-gl": "*",
     "style-loader": "*",

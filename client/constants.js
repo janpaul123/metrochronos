@@ -8,12 +8,12 @@ export const colorsByHeadway = {
 
 export const hoverColorsByHeadway = {
   60: tinycolor2(colorsByHeadway[60])
-    .brighten(15)
+    .brighten(20)
     .toString(),
   30: tinycolor2(colorsByHeadway[30])
-    .brighten(15)
+    .brighten(20)
     .toString(),
   15: tinycolor2(colorsByHeadway[15])
-    .brighten(15)
+    .brighten(20)
     .toString(),
 };
