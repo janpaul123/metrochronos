@@ -26,6 +26,8 @@
     ".babel-cache"
   ],
   "dependencies": {
+    "@turf/length": "^6.0.2",
+    "@turf/line-slice-along": "^5.1.5",
     "babel": "*",
     "babel-core": "*",
     "babel-loader": "*",
@@ -49,6 +51,7 @@
     "react-mapbox-gl": "*",
     "style-loader": "*",
     "tinycolor2": "^1.4.1",
+    "turf-linestring": "^1.0.2",
     "uuid": "^3.3.2",
     "webpack": "*"
   },
