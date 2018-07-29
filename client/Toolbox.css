@@ -74,3 +74,15 @@
   left: 0;
   right: 0;
 }
+
+:local(.statsContainer) {
+  border-top: 1px solid #333;
+  padding: 10px 0;
+  margin-top: 15px;
+}
+
+:local(.statsLine) {
+  font: 14px sans-serif;
+  text-align: center;
+  padding: 1px 0;
+}

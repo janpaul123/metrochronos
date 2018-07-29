@@ -6,6 +6,7 @@ import uuid from 'uuid';
 
 import { colorsByHeadway, hoverColorsByHeadway, secondaryColorsByHeadway } from './constants';
 import Toolbox from './Toolbox';
+import getBusPoint from './getBusPoint';
 import getSplittedLines from './getSplittedLines';
 import styles from './Main.css';
 
@@ -28,9 +29,27 @@ export default class Main extends React.Component {
     this.state = initialState;
   }
 
+  componentDidMount() {
+    this._interval = window.setInterval(() => {
+      this.forceUpdate();
+    }, 15);
+  }
+
+  componentWillUnmount() {
+    window.clearInterval(this._interval);
+  }
+
   render() {
     const { data, onChange } = this.props;
     const { routes } = data;
+
+    const splittedLinesByRouteId = {};
+    let usedBuses = 0;
+    Object.keys(routes).forEach(routeId => {
+      const route = routes[routeId];
+      splittedLinesByRouteId[routeId] = getSplittedLines(route.coordinates, route.headway);
+      usedBuses += splittedLinesByRouteId[routeId].length;
+    });
 
     return (
       <React.Fragment>
@@ -56,7 +75,7 @@ export default class Main extends React.Component {
               const route = routes[routeId];
               return (
                 <React.Fragment key={routeId}>
-                  {getSplittedLines(route.coordinates, route.headway).map((coordinates, index) => (
+                  {splittedLinesByRouteId[routeId].map((coordinates, index) => (
                     <Layer
                       key={index}
                       type="line"
@@ -71,6 +90,22 @@ export default class Main extends React.Component {
                       <Feature coordinates={coordinates} />
                     </Layer>
                   ))}
+                  {splittedLinesByRouteId[routeId].map((coordinates, index) => {
+                    const { point, direction } = getBusPoint(
+                      coordinates,
+                      route.headway,
+                      index % 2 === 1
+                    );
+                    return (
+                      <Layer
+                        key={index}
+                        type="circle"
+                        paint={{ 'circle-color': direction ? 'white' : '#ccc', 'circle-radius': 6 }}
+                      >
+                        <Feature coordinates={point} />
+                      </Layer>
+                    );
+                  })}
                   {times(route.coordinates.length - 1, segmentIndex => (
                     <GeoJSONLayer
                       key={segmentIndex}
@@ -207,6 +242,7 @@ export default class Main extends React.Component {
           </Map>
         </div>
         <Toolbox
+          usedBuses={usedBuses}
           onDrop={(position, headway) => {
             const lngLat = this._map.state.map.unproject(position);
             const routeId = uuid.v4();
