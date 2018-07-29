@@ -4,8 +4,9 @@ import cloneDeep from 'lodash/cloneDeep';
 import times from 'lodash/times';
 import uuid from 'uuid';
 
-import { colorsByHeadway, hoverColorsByHeadway } from './constants';
+import { colorsByHeadway, hoverColorsByHeadway, secondaryColorsByHeadway } from './constants';
 import Toolbox from './Toolbox';
+import getSplittedLines from './getSplittedLines';
 import styles from './Main.css';
 
 const Map = ReactMapboxGl({
@@ -55,6 +56,21 @@ export default class Main extends React.Component {
               const route = routes[routeId];
               return (
                 <React.Fragment key={routeId}>
+                  {getSplittedLines(route.coordinates, route.headway).map((coordinates, index) => (
+                    <Layer
+                      key={index}
+                      type="line"
+                      paint={{
+                        'line-color':
+                          index % 2 === 0
+                            ? colorsByHeadway[route.headway]
+                            : secondaryColorsByHeadway[route.headway],
+                        'line-width': 8,
+                      }}
+                    >
+                      <Feature coordinates={coordinates} />
+                    </Layer>
+                  ))}
                   {times(route.coordinates.length - 1, segmentIndex => (
                     <GeoJSONLayer
                       key={segmentIndex}
@@ -65,7 +81,7 @@ export default class Main extends React.Component {
                           route.coordinates[segmentIndex + 1],
                         ],
                       }}
-                      linePaint={{ 'line-color': colorsByHeadway[route.headway], 'line-width': 8 }}
+                      linePaint={{ 'line-color': 'transparent', 'line-width': 8 }}
                       lineOnMouseMove={event => {
                         const eventPixelPoint = event.target.project(event.lngLat);
                         const fromPixelPoint = event.target.project(
