@@ -10,7 +10,7 @@
 :local(.routeContainer) {
   display: flex;
   justify-content: space-around;
-  margin: 25px 0 10px;
+  margin: 25px 5px 10px;
 }
 
 :local(.route) {
