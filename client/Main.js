@@ -3,6 +3,10 @@ import ReactMapboxGl, { Feature, GeoJSONLayer, Layer, Popup } from 'react-mapbox
 import cloneDeep from 'lodash/cloneDeep';
 import times from 'lodash/times';
 
+import { colorsByHeadway, hoverColorsByHeadway } from './constants';
+import Toolbox from './Toolbox';
+import styles from './Main.css';
+
 const Map = ReactMapboxGl({
   accessToken:
     'pk.eyJ1IjoiamFucGF1bDEyMyIsImEiOiJjamUyYW53M2s1cjl3MndxcDU2Nmw0NjJsIn0.HnUpXhgdSYq1bIuE44w-XA',
@@ -27,114 +31,165 @@ export default class Main extends React.Component {
     const { routes } = data;
 
     return (
-      <Map
-        style="mapbox://styles/janpaul123/cjk5x9kmi3y2x2ro9ezajmq50"
-        containerStyle={{
-          height: '100vh',
-          width: '100vw',
-        }}
-        center={initialCenter}
-        zoom={initialZoom}
-      >
-        {Object.keys(routes).map(routeId => {
-          const route = routes[routeId];
-          return (
-            <React.Fragment key={routeId}>
-              {times(route.coordinates.length - 1, segmentIndex => (
-                <GeoJSONLayer
-                  key={segmentIndex}
-                  data={{
-                    type: 'LineString',
-                    coordinates: [
-                      route.coordinates[segmentIndex],
-                      route.coordinates[segmentIndex + 1],
-                    ],
-                  }}
-                  linePaint={{ 'line-color': route.color, 'line-width': 7 }}
-                  lineOnMouseMove={event =>
-                    this.setState({
-                      showAddCoordinate: {
-                        routeId,
-                        segmentIndex,
-                        lngLat: [event.lngLat.lng, event.lngLat.lat],
-                      },
-                    })
-                  }
-                  lineOnMouseLeave={() => this.setState({ showAddCoordinate: undefined })}
-                />
-              ))}
-              <Layer type="circle" paint={{ 'circle-radius': 10, 'circle-color': route.color }}>
-                {route.coordinates.map((coordinate, index) => (
-                  <Feature
-                    key={index}
-                    coordinates={coordinate}
-                    draggable
-                    onMouseEnter={() => this.setState({ hoveringCircle: { routeId, index } })}
-                    onMouseLeave={() => this.setState({ hoveringCircle: undefined })}
-                    onDragStart={() => this.setState({ draggingCircle: true })}
-                    onDragEnd={() => this.setState({ draggingCircle: undefined })}
-                    onDrag={mapWithEvt => {
-                      const dataCopy = cloneDeep(data);
-                      dataCopy.routes[routeId].coordinates[index] = [
-                        mapWithEvt.lngLat.lng,
-                        mapWithEvt.lngLat.lat,
-                      ];
-                      this.setState(initialState, () => onChange(dataCopy));
-                    }}
-                    onClick={() => {
-                      const dataCopy = cloneDeep(data);
-                      if (dataCopy.routes[routeId].coordinates.length > 2) {
-                        dataCopy.routes[routeId].coordinates.splice(index, 1);
-                      } else {
-                        delete dataCopy.routes[routeId];
-                      }
-                      this.setState(initialState, () => onChange(dataCopy));
-                    }}
-                  />
-                ))}
-              </Layer>
-              {!this.state.draggingCircle &&
-                this.state.hoveringCircle &&
-                this.state.hoveringCircle.routeId === routeId && (
-                  <Popup
-                    coordinates={route.coordinates[this.state.hoveringCircle.index]}
-                    style={{ fontSize: 10 }}
-                    offset={10}
-                  >
-                    drag to move, click to delete
-                  </Popup>
-                )}
-              {!this.state.draggingCircle &&
-                !this.state.hoveringCircle &&
-                this.state.showAddCoordinate &&
-                this.state.showAddCoordinate.routeId === routeId && (
+      <React.Fragment>
+        <div
+          className={
+            (this.state.showAddCoordinate || this.state.hoveringCircle) &&
+            !this.state.draggingCircle
+              ? styles.cursorPointer
+              : undefined
+          }
+        >
+          <Map
+            style="mapbox://styles/janpaul123/cjk5x9kmi3y2x2ro9ezajmq50"
+            containerStyle={{
+              height: '100vh',
+              width: '100vw',
+            }}
+            center={initialCenter}
+            zoom={initialZoom}
+          >
+            {Object.keys(routes).map(routeId => {
+              const route = routes[routeId];
+              return (
+                <React.Fragment key={routeId}>
+                  {times(route.coordinates.length - 1, segmentIndex => (
+                    <GeoJSONLayer
+                      key={segmentIndex}
+                      data={{
+                        type: 'LineString',
+                        coordinates: [
+                          route.coordinates[segmentIndex],
+                          route.coordinates[segmentIndex + 1],
+                        ],
+                      }}
+                      linePaint={{ 'line-color': colorsByHeadway[route.headway], 'line-width': 8 }}
+                      lineOnMouseMove={event => {
+                        const eventPixelPoint = event.target.project(event.lngLat);
+                        const fromPixelPoint = event.target.project(
+                          route.coordinates[segmentIndex]
+                        );
+                        const fromDistanceSquared =
+                          Math.pow(eventPixelPoint.x - fromPixelPoint.x, 2) +
+                          Math.pow(eventPixelPoint.y - fromPixelPoint.y, 2);
+                        const toPixelPoint = event.target.project(
+                          route.coordinates[segmentIndex + 1]
+                        );
+                        const toDistanceSquared =
+                          Math.pow(eventPixelPoint.x - toPixelPoint.x, 2) +
+                          Math.pow(eventPixelPoint.y - toPixelPoint.y, 2);
+                        if (fromDistanceSquared > 10 * 10 && toDistanceSquared > 10 * 10) {
+                          this.setState({
+                            showAddCoordinate: {
+                              routeId,
+                              segmentIndex,
+                              lngLat: [event.lngLat.lng, event.lngLat.lat],
+                            },
+                          });
+                        } else {
+                          this.setState({ showAddCoordinate: undefined });
+                        }
+                      }}
+                      lineOnMouseLeave={() => this.setState({ showAddCoordinate: undefined })}
+                    />
+                  ))}
                   <Layer
                     type="circle"
-                    paint={{
-                      'circle-radius': 10,
-                      'circle-color': route.color,
-                      'circle-opacity': 0.5,
-                    }}
+                    paint={{ 'circle-radius': 10, 'circle-color': colorsByHeadway[route.headway] }}
                   >
-                    <Feature
-                      coordinates={this.state.showAddCoordinate.lngLat}
-                      onClick={() => {
-                        const dataCopy = cloneDeep(data);
-                        const { lngLat, segmentIndex } = this.state.showAddCoordinate;
-                        dataCopy.routes[routeId].coordinates = [
-                          ...dataCopy.routes[routeId].coordinates.slice(0, segmentIndex + 1),
-                          lngLat,
-                          ...dataCopy.routes[routeId].coordinates.slice(segmentIndex + 1),
-                        ];
-                        this.setState(initialState, () => onChange(dataCopy));
-                      }}
-                    />
+                    {route.coordinates.map((coordinate, index) => (
+                      <Feature
+                        key={index}
+                        coordinates={coordinate}
+                        draggable
+                        onMouseEnter={() => this.setState({ hoveringCircle: { routeId, index } })}
+                        onMouseLeave={() => this.setState({ hoveringCircle: undefined })}
+                        onDragStart={() => this.setState({ draggingCircle: { routeId, index } })}
+                        onDragEnd={() => this.setState(initialState)}
+                        onDrag={mapWithEvt => {
+                          const dataCopy = cloneDeep(data);
+                          dataCopy.routes[routeId].coordinates[index] = [
+                            mapWithEvt.lngLat.lng,
+                            mapWithEvt.lngLat.lat,
+                          ];
+                          onChange(dataCopy);
+                        }}
+                        onClick={() => {
+                          const dataCopy = cloneDeep(data);
+                          if (dataCopy.routes[routeId].coordinates.length > 2) {
+                            dataCopy.routes[routeId].coordinates.splice(index, 1);
+                          } else {
+                            delete dataCopy.routes[routeId];
+                          }
+                          this.setState(initialState, () => onChange(dataCopy));
+                        }}
+                      />
+                    ))}
                   </Layer>
-                )}
-            </React.Fragment>
-          );
-        })}
-      </Map>
+                  {((this.state.draggingCircle && this.state.draggingCircle.routeId === routeId) ||
+                    (this.state.hoveringCircle &&
+                      this.state.hoveringCircle.routeId === routeId)) && (
+                    <Layer
+                      type="circle"
+                      paint={{
+                        'circle-radius': 10,
+                        'circle-color': hoverColorsByHeadway[route.headway],
+                      }}
+                    >
+                      <Feature
+                        coordinates={
+                          route.coordinates[
+                            (this.state.draggingCircle || this.state.hoveringCircle).index
+                          ]
+                        }
+                      />
+                    </Layer>
+                  )}
+                  {!this.state.draggingCircle &&
+                    this.state.hoveringCircle &&
+                    this.state.hoveringCircle.routeId === routeId && (
+                      <Popup
+                        coordinates={route.coordinates[this.state.hoveringCircle.index]}
+                        style={{ fontSize: 10 }}
+                        offset={10}
+                      >
+                        drag to move, click to delete
+                      </Popup>
+                    )}
+                  {!this.state.draggingCircle &&
+                    !this.state.hoveringCircle &&
+                    this.state.showAddCoordinate &&
+                    this.state.showAddCoordinate.routeId === routeId && (
+                      <Layer
+                        type="circle"
+                        paint={{
+                          'circle-radius': 10,
+                          'circle-color': hoverColorsByHeadway[route.headway],
+                        }}
+                      >
+                        <Feature
+                          coordinates={this.state.showAddCoordinate.lngLat}
+                          onClick={() => {
+                            const dataCopy = cloneDeep(data);
+                            const { lngLat, segmentIndex } = this.state.showAddCoordinate;
+                            dataCopy.routes[routeId].coordinates = [
+                              ...dataCopy.routes[routeId].coordinates.slice(0, segmentIndex + 1),
+                              lngLat,
+                              ...dataCopy.routes[routeId].coordinates.slice(segmentIndex + 1),
+                            ];
+                            this.setState(initialState, () => onChange(dataCopy));
+                          }}
+                          onMouseLeave={() => this.setState({ showAddCoordinate: undefined })}
+                        />
+                      </Layer>
+                    )}
+                </React.Fragment>
+              );
+            })}
+          </Map>
+        </div>
+        <Toolbox />
+      </React.Fragment>
     );
   }
 }

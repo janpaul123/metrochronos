@@ -6,7 +6,7 @@ import Main from './Main';
 const metrochronosData = JSON.parse(localStorage.metrochronosData || '{}');
 metrochronosData.routes = metrochronosData.routes || {};
 metrochronosData.routes['my-route'] = {
-  color: 'blue',
+  headway: 60,
   coordinates: [[-122.4156983, 37.7709864], [-122.4156983, 37.7809864]],
 };
 localStorage.metrochronosData = JSON.stringify(metrochronosData);

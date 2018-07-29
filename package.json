@@ -47,6 +47,7 @@
     "react-dom": "*",
     "react-mapbox-gl": "*",
     "style-loader": "*",
+    "tinycolor2": "^1.4.1",
     "uuid": "^3.3.2",
     "webpack": "*"
   },
