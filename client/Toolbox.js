@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDocumentEvents from 'react-document-events';
 
+import { DraggablePin } from './Pin';
 import { colorsByHeadway, hoverColorsByHeadway } from './constants';
 import styles from './Toolbox.css';
 
-const blueHeight = 200;
+const blueHeight = 150;
 const maximumBuses = 20;
 
 class DraggablePoint extends React.Component {
@@ -92,7 +93,7 @@ export default class Toolbox extends React.Component {
         style={{ color: colorsByHeadway[headway], height: blueHeight * (headway / 60) }}
       >
         <div className={styles.routeLabel}>{headway} min</div>
-        <DraggablePoint headway={headway} onDrop={this.props.onDrop} />
+        <DraggablePoint headway={headway} onDrop={this.props.onDropBus} />
       </div>
     );
   }
@@ -115,6 +116,9 @@ export default class Toolbox extends React.Component {
             buses used: {this.props.usedBuses}
           </div>
           <div className={styles.statsLine}>maximum: {maximumBuses}</div>
+        </div>
+        <div className={styles.pin}>
+          <DraggablePin onDrop={this.props.onDropPin} />
         </div>
       </div>
     );

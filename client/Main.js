@@ -4,12 +4,13 @@ import cloneDeep from 'lodash/cloneDeep';
 import times from 'lodash/times';
 import uuid from 'uuid';
 
+import { Pin } from './Pin';
 import { colorsByHeadway, hoverColorsByHeadway, secondaryColorsByHeadway } from './constants';
+import SwitchHeadwayMarker from './SwitchHeadwayMarker';
 import Toolbox from './Toolbox';
 import getBusPoint from './getBusPoint';
 import getSplittedLines from './getSplittedLines';
 import styles from './Main.css';
-import SwitchHeadwayMarker from './SwitchHeadwayMarker';
 
 const Map = ReactMapboxGl({
   accessToken:
@@ -293,6 +294,11 @@ export default class Main extends React.Component {
                         />
                       </Marker>
                     )}
+                  {data.pinLocation && (
+                    <Marker coordinates={data.pinLocation}>
+                      <Pin />
+                    </Marker>
+                  )}
                 </React.Fragment>
               );
             })}
@@ -300,7 +306,7 @@ export default class Main extends React.Component {
         </div>
         <Toolbox
           usedBuses={usedBuses}
-          onDrop={(position, headway) => {
+          onDropBus={(position, headway) => {
             const lngLat = this._map.state.map.unproject(position);
             const routeId = uuid.v4();
             const dataCopy = cloneDeep(data);
@@ -308,6 +314,12 @@ export default class Main extends React.Component {
               headway,
               coordinates: [[lngLat.lng, lngLat.lat], [lngLat.lng, lngLat.lat - 0.01]],
             };
+            onChange(dataCopy);
+          }}
+          onDropPin={position => {
+            const lngLat = this._map.state.map.unproject(position);
+            const dataCopy = cloneDeep(data);
+            dataCopy.pinLocation = [lngLat.lng, lngLat.lat];
             onChange(dataCopy);
           }}
         />

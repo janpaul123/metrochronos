@@ -1,0 +1,27 @@
+:local(.root) {
+  position: relative;
+  width: 0;
+  height: 0;
+  display: inline-block;
+  cursor: pointer;
+}
+
+:local(.pin) {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  vertical-align: bottom;
+  font: 40px/1 sans-serif;
+  transform: translate(-50%, 5px);
+}
+
+:local(.draggingLayer) {
+  position: fixed;
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+  cursor: grabbing;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
