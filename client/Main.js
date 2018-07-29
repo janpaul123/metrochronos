@@ -32,6 +32,14 @@ export default class Main extends React.Component {
     const { data, onChange } = this.props;
     const { routes } = data;
 
+    const splittedLinesByRouteId = {};
+    let usedBuses = 0;
+    Object.keys(routes).forEach(routeId => {
+      const route = routes[routeId];
+      splittedLinesByRouteId[routeId] = getSplittedLines(route.coordinates, route.headway);
+      usedBuses += splittedLinesByRouteId[routeId].length;
+    });
+
     return (
       <React.Fragment>
         <div
@@ -56,7 +64,7 @@ export default class Main extends React.Component {
               const route = routes[routeId];
               return (
                 <React.Fragment key={routeId}>
-                  {getSplittedLines(route.coordinates, route.headway).map((coordinates, index) => (
+                  {splittedLinesByRouteId[routeId].map((coordinates, index) => (
                     <Layer
                       key={index}
                       type="line"
@@ -207,6 +215,7 @@ export default class Main extends React.Component {
           </Map>
         </div>
         <Toolbox
+          usedBuses={usedBuses}
           onDrop={(position, headway) => {
             const lngLat = this._map.state.map.unproject(position);
             const routeId = uuid.v4();

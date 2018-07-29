@@ -5,6 +5,7 @@ import { colorsByHeadway, hoverColorsByHeadway } from './constants';
 import styles from './Toolbox.css';
 
 const blueHeight = 200;
+const maximumBuses = 20;
 
 class DraggablePoint extends React.Component {
   constructor(props) {
@@ -105,6 +106,15 @@ export default class Toolbox extends React.Component {
           {this._renderRoute(60)}
           {this._renderRoute(30)}
           {this._renderRoute(15)}
+        </div>
+        <div className={styles.statsContainer}>
+          <div
+            className={styles.statsLine}
+            style={{ color: this.props.usedBuses > maximumBuses ? 'red' : undefined }}
+          >
+            buses used: {this.props.usedBuses}
+          </div>
+          <div className={styles.statsLine}>maximum: {maximumBuses}</div>
         </div>
       </div>
     );
