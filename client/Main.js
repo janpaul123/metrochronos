@@ -6,6 +6,7 @@ import uuid from 'uuid';
 
 import { DraggablePin } from './Pin';
 import { colorsByHeadway, hoverColorsByHeadway, secondaryColorsByHeadway } from './constants';
+import Isochrones from './Isochrones';
 import SwitchHeadwayMarker from './SwitchHeadwayMarker';
 import Toolbox from './Toolbox';
 import getBusPoint from './getBusPoint';
@@ -134,6 +135,11 @@ export default class Main extends React.Component {
             zoom={initialZoom}
             ref={c => (this._map = c)}
           >
+            <Isochrones
+              locations={[
+                { coordinate: [-122.39707304059863, 37.785571889585015], minutesLeft: 40 },
+              ]}
+            />
             {Object.keys(routes).map(routeId => {
               const route = routes[routeId];
               return (
