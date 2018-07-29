@@ -1,3 +1,7 @@
 :local(.cursorPointer) .mapboxgl-canvas-container {
   cursor: pointer !important;
 }
+
+.mapboxgl-marker {
+  pointer-events: none;
+}
