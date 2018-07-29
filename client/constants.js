@@ -1,6 +1,9 @@
 import tinycolor2 from 'tinycolor2';
 
+export const averageWalkingSpeedKph = 5;
 export const averageBusSpeedKph = 10;
+export const busStopInterval = 0.5;
+
 
 export const colorsByHeadway = {
   60: '#00f',
