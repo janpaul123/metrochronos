@@ -4,7 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import times from 'lodash/times';
 import uuid from 'uuid';
 
-import { Pin } from './Pin';
+import { DraggablePin } from './Pin';
 import { colorsByHeadway, hoverColorsByHeadway, secondaryColorsByHeadway } from './constants';
 import SwitchHeadwayMarker from './SwitchHeadwayMarker';
 import Toolbox from './Toolbox';
@@ -94,6 +94,13 @@ export default class Main extends React.Component {
     super(props);
     this.state = initialState;
   }
+
+  _onDropPin = position => {
+    const lngLat = this._map.state.map.unproject(position);
+    const dataCopy = cloneDeep(this.props.data);
+    dataCopy.pinLocation = [lngLat.lng, lngLat.lat];
+    this.props.onChange(dataCopy);
+  };
 
   render() {
     const { data, onChange } = this.props;
@@ -296,7 +303,7 @@ export default class Main extends React.Component {
                     )}
                   {data.pinLocation && (
                     <Marker coordinates={data.pinLocation}>
-                      <Pin />
+                      <DraggablePin onDrop={this._onDropPin} />
                     </Marker>
                   )}
                 </React.Fragment>
@@ -316,12 +323,7 @@ export default class Main extends React.Component {
             };
             onChange(dataCopy);
           }}
-          onDropPin={position => {
-            const lngLat = this._map.state.map.unproject(position);
-            const dataCopy = cloneDeep(data);
-            dataCopy.pinLocation = [lngLat.lng, lngLat.lat];
-            onChange(dataCopy);
-          }}
+          onDropPin={this._onDropPin}
         />
       </React.Fragment>
     );
